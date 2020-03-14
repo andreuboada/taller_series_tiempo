@@ -1,0 +1,48 @@
+---
+title: ""
+output:
+  html_document:
+    keep_md: true
+    css: estilos/modest.css
+    theme: spacelab
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache = T, message = F, comment = NA, fig.align = "center")
+```
+
+
+<style>
+  .espacio {
+     margin-bottom: 1cm;
+  }
+</style>
+
+# Series de tiempo 📉📈
+
+> "It is far better to foresee even without certainty than not to foresee at all." --- Henri Poincare
+
+## dfasdfasdf
+
+
+asdfadf
+https://stackoverflow.com/questions/36437028/graphing-matplotlib-with-python-code-in-a-r-markdown-document
+
+
+```{r}
+path_java <- "/mnt/c/ProgramData/Anaconda3/"
+```
+
+
+
+https://www.oreilly.com/library/view/practic
+al-time-series/9781492041641/ch01.html
+https://www.statistics.su.se/english/research/time-series-analysis/a-brief-history-of-time-series-analysis-1.259451
+https://towardsdatascience.com/detecting-stationarity-in-time-series-data-d29e0a21e638
+https://towardsdatascience.com/stationarity-in-time-series-analysis-90c94f27322
+https://machinelearningmastery.com/time-series-data-stationary-python/
+https://towardsdatascience.com/time-series-analysis-in-python-an-introduction-70d5a5b1d52a
+https://machinelearningmastery.com/time-series-forecasting-methods-in-python-cheat-sheet/
+https://github.com/WillKoehrsen/Data-Analysis/blob/master/additive_models/Additive%20Models%20for%20Prediction.ipynb
+prophet
+https://research.fb.com/prophet-forecasting-at-scale/
