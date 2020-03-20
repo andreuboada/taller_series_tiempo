@@ -71,7 +71,7 @@ Estableció la costumbre de imprimir pronósticos del tiempo en el periódico _T
 
 Leer más en: https://www.bbc.com/news/magazine-32483678
 
-```{r,message=FALSE,comment=NA,results='hide',echo=FALSE}
+```{r message=FALSE, warning=FALSE}
 library(tidyverse)
 library(reshape2)
 library(gridExtra)
@@ -99,11 +99,11 @@ para series individuales: especificación, estimación, diagnóstico y pronósti
 Hoy en día, los denominados modelos Box-Jenkins son quizás los más utilizados y muchas técnicas
 utilizadas para la predicción y el ajuste estacional se remontan a estos modelos.
 
-<center><img src="img/boxjenkins.jpg" width="100px" /></center>
+<center><img src="img/boxjenkins.jpg" width="200px" /></center>
 <p class="espacio">
 </p>
 
-### Modelos aditivos:
+### Modelos aditivos
 
 El enfoque de series de tiempo como modelo aditivo es de la siguiente manera. 
 Supongamos que tenemos una serie de tiempo en la cual observamos "ciclos".
@@ -333,6 +333,8 @@ para proceder en nuestro análisis exploratorio:
 (estacionalidad).
 
 7. Checar ajuste y si es necesario iterar de 3 a 6 con las nuevas componentes.
+
+
 <p class="espacio">
 </p>
 </div>
@@ -406,14 +408,14 @@ ggplot(ventas.2.m.c, aes(x = period, y = valor.c)) +
 ```
 
 
-```{r}
+```{r fig.height=8, fig.width=12, message=TRUE}
 library(nullabor)
 ventas.res.2 <- dplyr::select(ventas, period, res.final)
 ventas.null.2 <- lineup(null_dist(var = 'res.final', dist = 'normal', 
   params = list(mean = 0, sd = 0.0636)), n = 20, ventas.res.2)
 
 ggplot(ventas.null.2, aes(x = period, y = res.final)) +
-  facet_wrap(~ .sample, ncol = 2) + 
+  facet_wrap(~ .sample, ncol = 4) + 
   geom_line(size = 0.3) +
   geom_vline(xintercept = c(0, 52 - 1, 52 * 2 - 1, 52 * 3 - 1, 52 * 4 - 1), 
              color = "gray") + 
@@ -421,190 +423,84 @@ ggplot(ventas.null.2, aes(x = period, y = res.final)) +
 ```
 
 
-### asdfaf
+### Otro ejemplo de la descomposición clásica
 
+Veamos un ejemplo con los datos `co2` del paquete `ggplot2`. Estos datos muestran las concentraciones atmosféricas de CO2, que se expresan en partes por millón (ppm)
+y se informan en la escala preliminar de fracción molar manométrica SIO de 1997.
 
-```{r}
-library(fpp3)
+```{r fig.height=7, fig.width=11, message=FALSE, warning=FALSE}
+library(forecast)
+co2 %>% 
+  decompose(type = "multiplicative") %>% 
+  autoplot + 
+  xlab("Año") +
+  ggtitle("Descomposición multiplicativa clásica de 
+          concentración atmosférica de CO2 (1959-1997)")
+```
+
+Utilizaremos los datos `elecequip` del paquete `fpp` para el resto de este taller. Estos datos muestran el número de nuevos pedidos de equipos eléctricos (computadoras, productos electrónicos
+y ópticos) en 16 países de Europa. Los datos ya han sido ajustados por el número de días hábiles y normalizados, por lo que un valor de 100 corresponde a 2005.
+
+```{r fig.height=7, fig.width=11, message=FALSE, warning=FALSE}
+elecequip <- read_csv("datos/elecequip.csv") 
+elecequip <- ts(elecequip$x, start=c(1996, 1), end=c(2012, 3), frequency=12)
+
 elecequip %>% decompose(type="multiplicative") %>%
   autoplot() + xlab("Year") +
   ggtitle("Classical multiplicative decomposition
     of electrical equipment index")
 ```
 
+La valores de residuaels por debajo de 1 en 2009 sugieren que hay una cierta "fuga" del componente 
+de tendencia (ciclo) en el componente de residuales. La estimación de la tendencia ha suavizado 
+en exceso la caída de los datos, y los valores restantes correspondientes se han visto afectados
+por la pobre estimación de la tendencia.
 
+### Comentarios sobre la descomposición clásica
 
-## Modelos adivitos con #prophet
+Si bien la descomposición clásica todavía se usa ampliamente, no se recomienda, ya que ahora 
+hay varios métodos mucho mejores. Algunos de los problemas con la descomposición clásica se
+resumen a continuación.
 
-blah blah blah
+* La estimación de la tendencia no está disponible para las primeras y últimas 
+observaciones. Por ejemplo, si $m = 12$, no hay una estimación del ciclo de tendencia para 
+las primeras seis o las últimas seis observaciones. En consecuencia, tampoco existe una 
+estimación del componente restante para los mismos períodos de tiempo.
 
+* La estimación de tendencias (ciclos) tiende a suavizar los aumentos y caídas rápidas en los
+datos (como se ve en el ejemplo anterior).
 
-```{r message=FALSE, warning=FALSE}
-library(wikipediatrend)
-library(tidyverse)
+* Los métodos de descomposición clásicos suponen que el componente estacional se repite de año
+en año. Para muchas series, esta es una suposición razonable, pero para algunas series más largas
+no lo es. Por ejemplo, los patrones de demanda de electricidad han cambiado con el tiempo a medida
+que el aire acondicionado se ha generalizado. Específicamente, en muchos lugares, el patrón de uso
+estacional de hace varias décadas tuvo su demanda máxima en invierno (debido a la calefacción),
+mientras que el patrón estacional actual tiene su demanda máxima en verano (debido al aire
+acondicionado). Los métodos de descomposición clásicos no pueden capturar estos cambios estacionales
+a lo largo del tiempo.
 
-#page_views <- wp_trend("Influenza", from = "2007-01-01", to = "2020-03-17")  %>% filter(views > 0)
-#write_csv(x = page_views, path = "datos/influenza.csv")
+*Ocasionalmente, los valores de las series de tiempo en un pequeño número de períodos pueden ser
+particularmente inusuales. Por ejemplo, el tráfico mensual de pasajeros aéreos puede verse afectado
+por una disputa industrial, lo que hace que el tráfico durante la disputa sea diferente al habitual. 
+El método clásico no es robusto para este tipo de valores inusuales.
 
-page_views <- read_csv(file = "datos/influenza.csv")
 
-ggplot(page_views, aes(x=date, y=log(views))) + 
-  geom_point(size=0.8, alpha=0.5, colour="#2dcccd") + 
-  geom_smooth(method="loess", colour="#00000000", fill="steelblue", alpha=1, span = 0.1) +
-  scale_y_continuous( breaks=seq(5e6, 50e6, 5e6) , 
-  label= paste(seq(5,50,5),"M") ) + xlab("Fecha") + ylab("Número de visitas (log)") +
-  theme_bw()
-```
 
-```{r}
-library(AnomalyDetection)
 
-page_views_br <- page_views %>% 
-  select(date, views) %>% 
-  mutate(views = log(views)) %>%
-  rename(timestamp = date) %>% 
-  mutate(timestamp = as.POSIXct(timestamp))
 
-res <- 
-AnomalyDetectionTs(
-  x         = page_views_br, 
-  alpha     = 0.05, 
-  max_anoms = 0.40,
-  direction = "both"
-)$anoms
 
-res$timestamp <- as.Date(res$timestamp)
 
-head(res)
-```
 
-```{r}
-page_views <- 
-  page_views %>% 
-  mutate(normal = !(page_views$date %in% res$timestamp))  %>% 
-  mutate(anom   =   page_views$date %in% res$timestamp )
 
-class(page_views) <- c("wp_df", "data.frame")
-```
 
-```{r}
-ggplot(data = page_views, aes(x=date, y=views)) + 
-      geom_line(color="steelblue") +
-      geom_point(data=filter(page_views, anom==T), color="red2", size=2) +
-      theme_bw() + xlab("Fecha") + ylab("Número de visitas") + ggtitle("Observaciones anómalas")
-```
 
-```{r message=FALSE, warning=FALSE, results='hide'}
-library(prophet)
-page_views_p <- dplyr::rename(page_views, ds = date, y = views)
-m <- prophet(page_views_p)
-future <- make_future_dataframe(m, periods = 1095)
-#head(future)
-forecast <- predict(m, future)
-#head(forecast)
-```
 
-```{r}
-plot(m, forecast)
-```
 
-Podemos graficar los componentes del modelo:
 
-```{r}
-prophet_plot_components(m, forecast)
-```
 
 
-## Algunos conceptos
 
 
 
-### ¿Cuál de las siguientes dos series es estacionaria?
 
-```{r}
-page_views_pm1 <- wp_trend("Peyton_Manning", from = "2016-01-01", to = "2020-03-18")
-page_views_pm2 <- wp_trend("Patrick_Mahomes", from = "2016-01-01", to = "2020-03-18")
 
-gpm1 <- ggplot(page_views_pm1, aes(x=date, y=log(views))) + 
-  geom_point(size=1.5, colour="steelblue") + 
-  geom_smooth(method="loess", colour="#2dcccd", fill="#2dcccd", alpha=0.4, span = 0.1) +
-  scale_y_continuous( breaks=seq(5e6, 50e6, 5e6) , 
-  label= paste(seq(5,50,5),"M") ) + xlab("Fecha") + ylab("Número de visitas (log)") +
-  ggtitle("Payton Manning") +
-  theme_bw()
-
-gpm2 <- ggplot(page_views_pm2, aes(x=date, y=log(views))) + 
-  geom_point(size=1.5, colour="steelblue") + 
-  geom_smooth(method="loess", colour="#2dcccd", fill="#2dcccd", alpha=0.4, span = 0.1) +
-  scale_y_continuous( breaks=seq(5e6, 50e6, 5e6) , 
-  label= paste(seq(5,50,5),"M") ) + xlab("Fecha") + ylab("Número de visitas (log)") +
-  ggtitle("Patrick Mahomes") +
-  theme_bw()
-gpm2
-grid.arrange(gpm1, gpm2, ncol = 2)
-```
-
-a) Payton
-b) Patrick
-c) Ambos
-d) Ninguno
-
-
-
-
-
-
-## Ejemplos en python
-https://stackoverflow.com/questions/36437028/graphing-matplotlib-with-python-code-in-a-r-markdown-document
-
-
-```{r}
-path_java <- "/mnt/c/ProgramData/Anaconda3/"
-```
-
-
-
-
-
-
-
-
-# Referencias 
-
-[1] Aileen Nielsen (2019). Practical Time Series Analysis. O'Reilly.
-
-[2] Box, G. E., & Jenkins, G. M. (1970). Time series analysis: Forecasting and control Holden-Day. San Francisco, 498.
-
-[3] Hyndman, R. J., & Athanasopoulos, G. (2018). Forecasting: principles and practice. OTexts.
-
-[4] Peter Meissner (2019). wikipediatrend: Public Subject Attention via Wikipedia Page View Statistics. R
-  package version 2.1.4.
-
-[5] Owen S. Vallis, Jordan Hochenbaum and Arun Kejariwal (2014). AnomalyDetection: Anomaly Detection Using Seasonal Hybrid Extreme Studentized Deviate Test. R package version 1.0.1.
-
-[6] Wickham, H., & Grolemund, G. (2016). R for data science.
-
-[7] Guerrero Guzmán, V. M. (2003). Análisis estadístico de series de tiempo económicas (No. 04; Q280, G8 2003.).
-
-[8] 
-
-
-
-
-
-
-
-
-
-
-
-
-https://towardsdatascience.com/detecting-stationarity-in-time-series-data-d29e0a21e638
-https://towardsdatascience.com/stationarity-in-time-series-analysis-90c94f27322
-https://machinelearningmastery.com/time-series-data-stationary-python/
-https://towardsdatascience.com/time-series-analysis-in-python-an-introduction-70d5a5b1d52a
-https://machinelearningmastery.com/time-series-forecasting-methods-in-python-cheat-sheet/
-https://github.com/WillKoehrsen/Data-Analysis/blob/master/additive_models/Additive%20Models%20for%20Prediction.ipynb
-
-prophet
-https://research.fb.com/prophet-forecasting-at-scale/
