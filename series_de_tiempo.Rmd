@@ -479,28 +479,308 @@ mientras que el patrón estacional actual tiene su demanda máxima en verano (de
 acondicionado). Los métodos de descomposición clásicos no pueden capturar estos cambios estacionales
 a lo largo del tiempo.
 
-*Ocasionalmente, los valores de las series de tiempo en un pequeño número de períodos pueden ser
+* Ocasionalmente, los valores de las series de tiempo en un pequeño número de períodos pueden ser
 particularmente inusuales. Por ejemplo, el tráfico mensual de pasajeros aéreos puede verse afectado
 por una disputa industrial, lo que hace que el tráfico durante la disputa sea diferente al habitual. 
 El método clásico no es robusto para este tipo de valores inusuales.
 
+## Seasonal Trend Loess (STL) 
+
+Lowess estacional es un método de descomposición basado en mínimos cuadrados ponderados localmente. 
+En general, estos métodos son una alternativa a los modelos autorregresivos / de media móvil (ARMA).
+Los métodos de descomposición son un enfoque preferible cuando la tendencia y los componentes
+estacionales dominan la serie. Esto se usa generalmente para _desestacionalizar_ las series.
+
+Veamos ahora cómo se ven los datos estacionales de cada mes en la serie:
+
+```{r}
+fit <- decompose(elecequip, type="additive") #additive decomposition
+g1 <- autoplot(elecequip)
+g1 + geom_line(data = seasadj(fit), color = "red")
+```
+
+Observamos que aumenta en Marzo, Junio, Septiembre a Diciembre y disminuye en Agosto:
+
+```{r}
+ggfortify::ggfreqplot(elecequip, freq=12)
+```
 
 
+```{r}
+fits <- stl(elecequip, s.window=7)
+monthplot(fits, choice = "seasonal")
+```
+
+Ahora graficamos la serie ajustada por la estacionalidad. Observamos que ya no se tiene esa
+variación estacional porque esta puede ser explicada por separado:
+
+```{r}
+eeadj <- seasadj(stl(elecequip, s.window="periodic"))
+autoplot(eeadj) 
+```
+
+Vemos un nuevo ajuste. La distribución de los residuales es menos dramática que en la motivación anterior.
+
+```{r}
+fitloess <- stl(elecequip, t.window=15, s.window="periodic", robust=TRUE)
+autoplot(fitloess)#grafica tanto con tendencia y ajuste de estacionalidad
+```
+
+## Modelos autorregresivos (AR)
+
+Un modelo autorregresivo utiliza instancias anteriores de cada medición como predictor en 
+un modelo lineal para futuras instancias.
+
+$$
+y_t = \beta_0 + \sum_{i=1}^p{\beta_i y_{t-i}} + \varepsilon_t
+$$
+
+donde los parámetros a ajustar son las $\beta_i$'s. Como de costumbre, se supone que los 
+términos de error siguen una distribución normal con media 0 (por ejemplo, 
+$\varepsilon\sim N(0, \sigma)$. Podemos ajustar el modelo usando regresión OLS, 
+pero aquí usaremos una función especial de R.
+
+El modelo autorregresivo $\mbox{AR}(p)$ usa $p$ términos rezagados (lags).
+
+```{r}
+ar.mod <- ar(eeadj, order.max = 5)
+ar.mod
+```
+
+```{r}
+ar.hats <- predict(ar.mod, n.ahead=24)
+plot(eeadj, xlim=c(1996, 2014))
+lines(ar.hats$pred, col="blue")
+lines(ar.hats$pred + ar.hats$se, col="red")
+lines(ar.hats$pred - ar.hats$se, col="red")
+```
+
+## Modelos de promedios móviles (MA)
+
+Los modelos de promedios móviles son similares, pero usan los términos de error en 
+lugar de las observaciones anteriores. Es decir, aquí las mediciones se basan en los
+errores rezagados, en lugar de las observaciones rezagadas.
+
+El modelo de promedios móviles de orden $q$ se denota por $\mbox{MA}(q)$:
+
+$$
+y_t = \mu + \sum_{j=1}^q{\theta_i\varepsilon_{t-i}} + \varepsilon_t
+$$
+donde los parámetros que se deben ajustar son las $\theta_i$'s.
 
 
+Ajuste sencillo de medias móviles:
+
+```{r}
+ma.mod <- ma(eeadj, order = 12)
+plot(eeadj, ylab="New orders index", col="gray",
+ main="Electrical equipment manufacturing (Euro area)")
+lines(ma.mod, col="red") #moving average for m=12
+```
 
 
+## Algunos conceptos
+
+### Estacionariedad
+
+Una serie temporal estacionaria es aquella cuyas propiedades no dependen del momento en 
+que se observa la serie, es decir, ${y_t}$ es estacionaria si para toda $s$ la distribución de 
+$$
+(y_t, y_{y+1},\ldots,y_{t+s})
+$$
+no depende de $t$ (siempre es la misma). Existen muchas definiciones de estacionariedad. (Ver [9])
+
+Por lo tanto, las series temporales con tendencias o con estacionalidad no son estacionarias: 
+la tendencia y la estacionalidad afectarán el valor de la serie temporal en tiempos diferentes. 
+Por otro lado, una serie de ruido blanco es estacionaria: no importa cuando se observe, debería 
+verse muy similar en cualquier momento.
+
+Algunos casos pueden ser confusos: una serie temporal con comportamiento cíclico (pero sin tendencia
+ni estacionalidad) es estacionaria. Esto se debe a que los ciclos no son de una longitud fija, por lo
+que antes de observar la serie no podemos estar seguros de dónde estarán los picos y los mínimos 
+de los ciclos.
+
+En general, una serie temporal estacionaria no tendrá patrones predecibles a largo plazo. Las 
+gráficos mostrarán que la serie es aproximadamente horizontal (aunque es posible un comportamiento
+cíclico), con una variación constante.
+
+Veamos las siguientes gráficas [3]:
+
+(a) precio de las acciones de Google durante 200 días consecutivos; 
+(b) Cambio diario en el precio de las acciones de Google durante 200 días consecutivos; 
+(c) Número anual de huelgas en los Estados Unidos; 
+(d) Ventas mensuales de nuevas casas unifamiliares vendidas en los Estados 
+Unidos; 
+(e) Precio anual de una docena de huevos en los Estados Unidos (dólares constantes); 
+(f) Total mensual de cerdos sacrificados en Victoria, Australia; 
+(g) Total anual de linces atrapados en el distrito del río McKenzie del noroeste de Canadá; 
+(h) Producción mensual de cerveza australiana;
+(i) Producción mensual de electricidad en Australia.
+
+<center><img src="img/stationary-1.png" width="800px" /></center>
+<p class="espacio">
+</p>
 
 
+*¿Cuál de éstas crees que es estacionaria?*
+
+La estacionalidad obvia descarta las series (d), (h) e (i). Las tendencias y los niveles 
+cambiantes descartan las series (a), (c), (e), (f) e (i). La varianza creciente también 
+descarta (i). Eso deja solo (b) y (g) como series estacionarias.
 
 
+### ¿Cuál de las siguientes series es estacionaria?
+
+Las siguientes gráficas muestran con qué frecuencia se ha visto un artículo a lo largo del tiempo 
+para las páginas de los 3 jugadores de football: Peyton Manning, Patrick Mahomes, y Jared Goff.
+
+```{r fig.height=4, fig.width=12, message=FALSE, warning=FALSE}
+library(wikipediatrend)
+
+page_views_pm1 <- wp_trend("Peyton_Manning", from = "2016-01-01", to = "2020-03-18")
+page_views_pm2 <- wp_trend("Patrick_Mahomes", from = "2016-01-01", to = "2020-03-18")
+page_views_jg <- wp_trend("Jared_Goff", from = "2016-01-01", to = "2020-03-18")
+
+gpm1 <- ggplot(page_views_pm1, aes(x=date, y=log(views))) + 
+  geom_point(size=1.5, colour="steelblue") + 
+  geom_smooth(method="loess", colour="#2dcccd", fill="#2dcccd", alpha=0.4, span = 0.1) +
+  scale_y_continuous( breaks=seq(5e6, 50e6, 5e6) , 
+  label= paste(seq(5,50,5),"M") ) + xlab("Fecha") + ylab("Número de visitas (log)") +
+  ggtitle("Payton Manning") +
+  theme_bw()
+
+gpm2 <- ggplot(page_views_pm2, aes(x=date, y=log(views))) + 
+  geom_point(size=1.5, colour="steelblue") + 
+  geom_smooth(method="loess", colour="#2dcccd", fill="#2dcccd", alpha=0.4, span = 0.1) +
+  scale_y_continuous( breaks=seq(5e6, 50e6, 5e6) , 
+  label= paste(seq(5,50,5),"M") ) + xlab("Fecha") + ylab("Número de visitas (log)") +
+  ggtitle("Patrick Mahomes") +
+  theme_bw()
+
+gjg <- ggplot(page_views_jg, aes(x=date, y=log(views))) + 
+  geom_point(size=1.5, colour="steelblue") + 
+  geom_smooth(method="loess", colour="#2dcccd", fill="#2dcccd", alpha=0.4, span = 0.1) +
+  scale_y_continuous( breaks=seq(5e6, 50e6, 5e6) , 
+  label= paste(seq(5,50,5),"M") ) + xlab("Fecha") + ylab("Número de visitas (log)") +
+  ggtitle("Jared Goff") +
+  theme_bw()
+
+grid.arrange(gpm1, gpm2, gjg, ncol = 3)
+```
+
+¿A qué jugadores corresponden la(s) series estacionarias?
+
+a) Payton y Jared
+b) Patrick y Jared
+c) Solamente la de Jared
+d) Solamente la de Payton
+
+### Diferenciación
+
+Veamos de nuevo las gráficas (a) y (b) de las acciones de Google arriba. Vemos que el 
+precio de las acciones de Google no era estacionario en (a), pero los cambios diarios eran
+estacionarios en (b). Esto muestra una forma de hacer que una serie de tiempo no estacionaria 
+sea estacionaria: calculando las diferencias entre observaciones consecutivas. 
+A esto se le conoce como _diferenciación_.
+
+Calcular logaritmo puede ayudar a estabilizar la varianza de una serie, mientras que
+la diferenciación puede ayudar a estabilizar la media, al eliminar los cambios en el nivel de
+la serie y, por lo tanto, eliminar (o reducir) la tendencia y la estacionalidad.
+
+La gráfica de _autocorrelaciones_ (*ACF*) también es útil para identificar series de tiempo no
+estacionarias. Para una serie de tiempo estacionaria, ka ACF caerá a cero relativamente rápido,
+mientras que cuando los datos son no estacionarios disminuye, la ACF disminuye lentamente. 
+
+<center><img src="img/acfstationary-1.png" width="600px" /></center>
+<p class="espacio">
+</p>
+
+### Diferenciaciòn
+
+A veces es necesario tomar una diferencia estacional y una primera diferencia para obtener datos
+estacionarios. Ahora vemos un ejemplo en el cual los datos se transforman primero usando logaritmo
+(segundo panel), luego se calculan las diferencias estacionales (tercer panel). 
+Los datos todavía parecen algo no estacionarios, por lo que se calculan nuevamente diferencias.
+
+```{r fig.height=10, message=FALSE, warning=FALSE}
+usmelec <- read_rds("datos/usmelec.rds")
+cbind("Billion kWh" = usmelec,
+      "Logs" = log(usmelec),
+      "Seasonally\n differenced logs" =
+        diff(log(usmelec),12),
+      "Doubly\n differenced logs" =
+        diff(diff(log(usmelec),12),1)) %>%
+  autoplot(facets=TRUE) +
+    xlab("Year") + ylab("") +
+    ggtitle("Monthly US net electricity generation")
+```
 
 
+## ARIMA
+
+Si combinamos la diferenciación con autorregresión y un modelo de promedio móvil, 
+obtenemos un modelo ARIMA no estacional. ARIMA es un acrónimo de 
+_AutoRegressive Integrated Moving Average_ (en este contexto, "integración" es lo 
+contrario de la diferenciación). El modelo completo se puede escribir como
+
+$$
+y^\prime_t = c + \sum_{i=1}^p{\beta_i y_{t-i}} + \sum_{j=1}^q{\theta_i\varepsilon_{t-i}} + \varepsilon_t
+$$
+
+donde $y^\prime_t$ es la serie diferenciada (puede haber sido diferenciada más de una vez). 
+Los "predictores" en el lado derecho incluyen ambos valores rezagados de $y_t$ y errores rezagados. 
+A esto lo llamamos $\mbox{ARIMA}(p,d,q)$ modelo, donde
+
+* $p$ = orden de la parte autorregresiva;
+* $d$ = grado de primera diferencia involucrada;
+* $q$ = orden de la parte media móvil.
+
+### Ejemplo: Gasto de consumo de EE. UU.
+
+La serie muestra cambios porcentuales trimestrales en el gasto de consumo de los Estados Unidos. 
+Aunque es una serie trimestral, no parece haber un patrón estacional, por lo que ajustaremos un 
+modelo ARIMA no estacional.
+
+```{r}
+uschange <- read_rds("datos/uschange.rds")
+autoplot(uschange[,"Consumption"]) +
+  xlab("Year") + ylab("Quarterly percentage change")
+```
+
+El siguiente código R se utilizó para seleccionar un modelo automáticamente.
+
+```{r}
+fit <- auto.arima(uschange[,"Consumption"], seasonal=FALSE)
+```
 
 
+Esto es un modelo $ARIMA(1,0,3)$ :
+$$
+y_t = c + 0.589 y_{t-1} -0.353\varepsilon_{t-1} + 0.0846\varepsilon_{t-2}+0.174\varepsilon_{t-3} + \varepsilon_{t-3}
+$$
 
 
+```{r}
+fit %>% forecast(h=10) %>% autoplot(include=80)
+```
 
+# Referencias 
 
+[1] Aileen Nielsen (2019). Practical Time Series Analysis. O'Reilly.
 
+[2] Box, G. E., & Jenkins, G. M. (1970). Time series analysis: Forecasting and control Holden-Day. San Francisco, 498.
 
+[3] Hyndman, R. J., & Athanasopoulos, G. (2018). Forecasting: principles and practice. OTexts.
+
+[4] Peter Meissner (2019). wikipediatrend: Public Subject Attention via Wikipedia Page View Statistics. R
+  package version 2.1.4.
+
+[5] Owen S. Vallis, Jordan Hochenbaum and Arun Kejariwal (2014). AnomalyDetection: Anomaly Detection Using Seasonal Hybrid Extreme Studentized Deviate Test. R package version 1.0.1.
+
+[6] Wickham, H., & Grolemund, G. (2016). R for data science.
+
+[7] Guerrero Guzmán, V. M. (2003). Análisis estadístico de series de tiempo económicas (No. 04; Q280, G8 2003.).
+
+[8] Cleveland, W. S. (1993) Visualizing Data. New Jersey: Summit Press.
+
+[9] Myers, Donald E. "To be or not to be... stationary? That is the question." Mathematical Geology 21.3 (1989): 347-362.
