@@ -25,22 +25,32 @@ knitr::opts_chunk$set(cache = T, message = F, comment = NA, fig.align = "center"
 
 # Prediciendo los pronósticos
 
-La estadística es una ciencia muy joven. El progreso en el análisis de datos y en particular en las
-series de tiempo siempre ha dependido en gran medida de cuándo, dónde y cómo estaban 
+La estadística es una ciencia muy joven. El progreso en el análisis de datos y en 
+particular en las
+series de tiempo siempre ha dependido en gran medida de cuándo, 
+dónde y cómo estaban 
 disponibles los datos y en qué cantidad.
 
-En la época Victoriana un científico llamado Robert FitzRoy fue nombrado jefe de un nuevo departamento
-del gobierno británico para registrar y publicar datos relacionados con el clima para los marineros.
-FitRoy había trabajado como capitán del HMS Beagle durante el viaje que llevó a Charles Darwin
-alrededor del mundo. Este viaje fue instrumental en proporcionar evidencia a Darwin para la teoría 
+En la época Victoriana un científico llamado Robert FitzRoy fue 
+nombrado jefe de un nuevo departamento
+del gobierno británico para registrar y publicar datos relacionados 
+con el clima para los marineros.
+FitRoy había trabajado como capitán del HMS Beagle durante el viaje 
+que llevó a Charles Darwin
+alrededor del mundo. Este viaje fue instrumental en proporcionar 
+evidencia a Darwin para la teoría 
 de la evolución por selección natural.
 
-Desde el renacimiento, los científicos comenzaron a recopilar datos relacionados con el clima con 
-la ayuda de instrumentos recién inventados, como el barómetro, para medir el estado atmosférico. Esto
+Desde el renacimiento, los científicos comenzaron a recopilar datos 
+relacionados con el clima con 
+la ayuda de instrumentos recién inventados, como el barómetro, 
+para medir el estado atmosférico. Esto
 con el objetivo de emplearlos para la pesca, la agricultura, o la ganadería.
 
-Para _predecir_ el clima se analizaba la aparición de nubes o bien el comportamiento de los animales,
-por ejemplo, el toro en el campo de un granjero, una rana en un frasco, o una golondrina en un arbusto
+Para _predecir_ el clima se analizaba la aparición de nubes o bien 
+el comportamiento de los animales,
+por ejemplo, el toro en el campo de un granjero, una rana en un 
+frasco, o una golondrina en un arbusto
 para ver, por ejemplo, si se aproximaba una tormenta.
 
 <div style="text-align: center;">**Predicción del clima usando ranas**</div>
@@ -48,20 +58,26 @@ para ver, por ejemplo, si se aproximaba una tormenta.
 <p class="espacio">
 </p>
 
-Se modernizaron los barómetros y estos instrumentos los utilizaron para registrar series de tiempo a
-intervalos diarios o incluso por hora. Los datos se guardaban en diarios privados y libros de
+Se modernizaron los barómetros y estos instrumentos los 
+utilizaron para registrar series de tiempo a
+intervalos diarios o incluso por hora. Los datos se guardaban 
+en diarios privados y libros de
 registro locales de la ciudad.
 
 <center><img src="img/fitzroy_barometer.jpg" width="150px" /></center>
 <p class="espacio">
 </p>
 
-Un problema grande para FitzRoy era que se hundían los barcos. Entre 1866 y 1860 se hundieron
-7402 barcos y se perdieron 7201 vidas. FitzRoy creía que si se podía prever esto muchas vidas
-se hubieran salvado. Cuando se hundió el Royal Charter en 1859 le dieron la facultad de comenzar 
+Un problema grande para FitzRoy era que se hundían los barcos. 
+Entre 1866 y 1860 se hundieron
+7402 barcos y se perdieron 7201 vidas. FitzRoy creía que si se 
+podía prever esto muchas vidas
+se hubieran salvado. Cuando se hundió el Royal Charter en 1859 
+le dieron la facultad de comenzar 
 a emitir advertencias de tormenta.
 
-FitzRoy acuñó el término *pronóstico*. En ese momento, fue criticado por la calidad de sus
+FitzRoy acuñó el término *pronóstico*. En ese momento, fue 
+criticado por la calidad de sus
 pronósticos, pero ahora se considera que estaba adelantado a su época. 
 Estableció la costumbre de imprimir pronósticos del tiempo en el periódico _The Times_.
 
@@ -87,17 +103,25 @@ knitr::opts_chunk$set(comment=NA, fig.align="center")
 
 ## El despegue de las series de tiempo
 
-Los desarrollos teóricos en el análisis de series de tiempo comenzaron con procesos estocásticos.
-La primera aplicación real de los modelos que se usan actualmente a los datos comenzó en el
-trabajo de G. U Yule y J. Walker en las décadas de 1920 y 1930, pero el problema es que no se
-lograba encontrar una solución de máxima verosimilitud para una clase de modelos más generales.
+Los desarrollos teóricos en el análisis de series de tiempo comenzaron 
+con procesos estocásticos.
+La primera aplicación real de los modelos que se usan actualmente a los 
+datos comenzó en el
+trabajo de G. U Yule y J. Walker en las décadas de 1920 y 1930, 
+pero el problema es que no se
+lograba encontrar una solución de máxima verosimilitud para 
+una clase de modelos más generales.
 
-Tomó hasta 1970 antes de que esto se lograra. En ese momento, salió el clásico libro "Análisis de
-series temporales" de G. E. P. Box y G. M. Jenkins, que contiene el procedimiento de modelado completo
+Tomó hasta 1970 antes de que esto se lograra. En ese momento, 
+salió el clásico libro "Análisis de
+series temporales" de G. E. P. Box y G. M. Jenkins, que 
+contiene el procedimiento de modelado completo
 para series individuales: especificación, estimación, diagnóstico y pronóstico.
 
-Hoy en día, los denominados modelos Box-Jenkins son quizás los más utilizados y muchas técnicas
-utilizadas para la predicción y el ajuste estacional se remontan a estos modelos.
+Hoy en día, los denominados modelos Box-Jenkins son quizás los 
+más utilizados y muchas técnicas
+utilizadas para la predicción y el ajuste estacional 
+se remontan a estos modelos.
 
 <center><img src="img/boxjenkins.jpg" width="200px" /></center>
 <p class="espacio">
@@ -110,8 +134,10 @@ Supongamos que tenemos una serie de tiempo en la cual observamos "ciclos".
 A esto normalmente se le llama "descomposición tendencia-ciclo".
 
 
-Por lo tanto, pensamos que una serie de tiempo comprende tres componentes: un componente 
-de ciclo de tendencia, un componente estacional y un componente restante (que contiene
+Por lo tanto, pensamos que una serie de tiempo comprende tres componentes: 
+un componente 
+de ciclo de tendencia, un componente estacional y un componente restante 
+(que contiene
 cualquier otra cosa en la serie de tiempo).
 
 Si suponemos una descomposición aditiva, entonces podemos escribir:
@@ -127,16 +153,24 @@ Alternativamente, una descomposición multiplicativa se escribiría como
 $$
 y_t = S_t \times T_t \times R_t.
 $$
-La descomposición aditiva es la más apropiada si la magnitud de las fluctuaciones estacionales,
-o la variación alrededor del ciclo de tendencia, no varía con el nivel de la serie temporal.
-Cuando la variación en el patrón estacional, o la variación alrededor del ciclo de tendencia,
-parece ser proporcional al nivel de la serie de tiempo, entonces una descomposición
-multiplicativa es más apropiada. Las descomposiciones multiplicativas son comunes con las
+La descomposición aditiva es la más apropiada si la magnitud de 
+las fluctuaciones estacionales,
+o la variación alrededor del ciclo de tendencia, no varía 
+con el nivel de la serie temporal.
+Cuando la variación en el patrón estacional, o la variación 
+alrededor del ciclo de tendencia,
+parece ser proporcional al nivel de la serie de tiempo, 
+entonces una descomposición
+multiplicativa es más apropiada. Las descomposiciones 
+multiplicativas son comunes con las
 series de tiempo económicas.
 
-Una alternativa al uso de una descomposición multiplicativa es transformar primero los datos
-hasta que la variación en la serie parece ser estable en el tiempo, luego usar una
-descomposición aditiva. Cuando se ha utilizado una transformación logarítmica, esto es
+Una alternativa al uso de una descomposición multiplicativa 
+es transformar primero los datos
+hasta que la variación en la serie parece ser estable 
+en el tiempo, luego usar una
+descomposición aditiva. Cuando se ha utilizado una 
+transformación logarítmica, esto es
 equivalente a usar una descomposición multiplicativa porque
 
 $$
@@ -291,7 +325,6 @@ Y vemos que es razonable describir los residuales con una distribución normal
 (con desviación estándar alrededor de 8% sobre el valor ajustado):
 
 ```{r, fig.width=3.6, fig.height=3.6}
-#sd(ventas$res.est2.2)
 ventas.ord <- arrange(ventas, res.est2.2)
 ventas.ord$q.normal <- qnorm((1:nrow(ventas) - 0.5) / nrow(ventas))
 ggplot(ventas.ord, aes(x = q.normal, y = res.est2.2)) +
@@ -372,7 +405,6 @@ ggplot(ventas.day, aes(x = day, y = res.est2.2)) +
   ylab("residual") +
   geom_smooth(method = "loess", span = 0.06, se = FALSE, size = 1, color = "red")
 ```
-
 
 Podemos hacer un ajuste loess con estos residuales:
 
@@ -526,59 +558,6 @@ fitloess <- stl(elecequip, t.window=15, s.window="periodic", robust=TRUE)
 autoplot(fitloess)#grafica tanto con tendencia y ajuste de estacionalidad
 ```
 
-## Modelos autorregresivos (AR)
-
-Un modelo autorregresivo utiliza instancias anteriores de cada medición como predictor en 
-un modelo lineal para futuras instancias.
-
-$$
-y_t = \beta_0 + \sum_{i=1}^p{\beta_i y_{t-i}} + \varepsilon_t
-$$
-
-donde los parámetros a ajustar son las $\beta_i$'s. Como de costumbre, se supone que los 
-términos de error siguen una distribución normal con media 0 (por ejemplo, 
-$\varepsilon\sim N(0, \sigma)$. Podemos ajustar el modelo usando regresión OLS, 
-pero aquí usaremos una función especial de R.
-
-El modelo autorregresivo $\mbox{AR}(p)$ usa $p$ términos rezagados (lags).
-
-```{r}
-ar.mod <- ar(eeadj, order.max = 5)
-ar.mod
-```
-
-```{r}
-ar.hats <- predict(ar.mod, n.ahead=24)
-plot(eeadj, xlim=c(1996, 2014))
-lines(ar.hats$pred, col="blue")
-lines(ar.hats$pred + ar.hats$se, col="red")
-lines(ar.hats$pred - ar.hats$se, col="red")
-```
-
-## Modelos de promedios móviles (MA)
-
-Los modelos de promedios móviles son similares, pero usan los términos de error en 
-lugar de las observaciones anteriores. Es decir, aquí las mediciones se basan en los
-errores rezagados, en lugar de las observaciones rezagadas.
-
-El modelo de promedios móviles de orden $q$ se denota por $\mbox{MA}(q)$:
-
-$$
-y_t = \mu + \sum_{j=1}^q{\theta_i\varepsilon_{t-i}} + \varepsilon_t
-$$
-donde los parámetros que se deben ajustar son las $\theta_i$'s.
-
-
-Ajuste sencillo de medias móviles:
-
-```{r}
-ma.mod <- ma(eeadj, order = 12)
-plot(eeadj, ylab="New orders index", col="gray",
- main="Electrical equipment manufacturing (Euro area)")
-lines(ma.mod, col="red") #moving average for m=12
-```
-
-
 ## Algunos conceptos
 
 ### Estacionariedad
@@ -695,7 +674,7 @@ mientras que cuando los datos son no estacionarios disminuye, la ACF disminuye l
 <p class="espacio">
 </p>
 
-### Diferenciaciòn
+### Diferenciación
 
 A veces es necesario tomar una diferencia estacional y una primera diferencia para obtener datos
 estacionarios. Ahora vemos un ejemplo en el cual los datos se transforman primero usando logaritmo
@@ -716,53 +695,137 @@ cbind("Billion kWh" = usmelec,
 ```
 
 
-## ARIMA
+## Modelos adivitos con #prophet
 
-Si combinamos la diferenciación con autorregresión y un modelo de promedio móvil, 
-obtenemos un modelo ARIMA no estacional. ARIMA es un acrónimo de 
-_AutoRegressive Integrated Moving Average_ (en este contexto, "integración" es lo 
-contrario de la diferenciación). El modelo completo se puede escribir como
+Cuando se trata de comprender series temporales, hay mucho en qué pensar. 
+
+* ¿Cuál es la tendencia general en los datos? 
+
+* ¿Está afectado por la estacionalidad? 
+
+* ¿Qué tipo de modelo debo usar y qué tan bien funcionará?
+
+Prophet es un paquete de código abierto para modelado de series 
+de tiempo desarrollado por facebook. Es muy rápido y fácil de usar con 
+cualquier serie de tiempo independientemente de la aplicación.
+
+
+### Estacionariedad y prophet
+
+Recordemos que se debe verificar si los datos resultantes después 
+de eliminar la tendencia y la estacionalidad son estacionarios. 
+Si la serie es estacionaria, su media, varianza y covarianza de un
+término al siguiente serán constantes, no variables a lo largo del tiempo. 
+La mayoría de los modelos de series de tiempo suponen que los datos son estacionarios, 
+por lo que este es un paso importante si desea que su modelo funcione como se espera.
+
+En el caso particular de prophet, al ser un modelo adivito es importante identificar
+cuándo la serie no es estacionaria. Si esta desestacionariedad se debe a la tendencia
+entonces prophet capturará esto en el modelo sin problema. Si no hay estacionariedad
+debido a _varianza de las componentes estacionales_ entonces es posible que el ajuste 
+de prophet no sea muy bueno.
+
+
+En esencia, Prophet es un modelo aditivo con los siguientes componentes:
 
 $$
-y^\prime_t = c + \sum_{i=1}^p{\beta_i y_{t-i}} + \sum_{j=1}^q{\theta_i\varepsilon_{t-i}} + \varepsilon_t
+y(t) = g(t) + s(t) + h(t) + \epsilon_t
 $$
+donde
 
-donde $y^\prime_t$ es la serie diferenciada (puede haber sido diferenciada más de una vez). 
-Los "predictores" en el lado derecho incluyen ambos valores rezagados de $y_t$ y errores rezagados. 
-A esto lo llamamos $\mbox{ARIMA}(p,d,q)$ modelo, donde
+$g(t)$ modela la tendencia, que describe el aumento o la disminución a largo plazo 
+de los datos. Prophet incorpora dos modelos de tendencia, un modelo de crecimiento 
+saturado y un modelo lineal por partes, según el tipo de problema de pronóstico.
 
-* $p$ = orden de la parte autorregresiva;
-* $d$ = grado de primera diferencia involucrada;
-* $q$ = orden de la parte media móvil.
+$s(t)$ modela la estacionalidad con una serie de Fourier, que describe cómo los 
+datos se ven afectados por factores estacionales como la época del año.
 
-### Ejemplo: Gasto de consumo de EE. UU.
+$h(t)$ modela los efectos de las vacaciones o grandes eventos que afectan las 
+series de tiempo de negocios (por ejemplo, lanzamiento de nuevos productos, 
+Black Friday, Superbowl, etc.)
 
-La serie muestra cambios porcentuales trimestrales en el gasto de consumo de los Estados Unidos. 
-Aunque es una serie trimestral, no parece haber un patrón estacional, por lo que ajustaremos un 
-modelo ARIMA no estacional.
+$\epsilon_t$ es el término de error.
 
-```{r}
-uschange <- read_rds("datos/uschange.rds")
-autoplot(uschange[,"Consumption"]) +
-  xlab("Year") + ylab("Quarterly percentage change")
+
+### Un ejemplo
+
+
+```{r message=FALSE, warning=FALSE}
+library(wikipediatrend)
+library(tidyverse)
+
+#page_views <- wp_trend("Influenza", from = "2007-01-01", to = "2020-03-17")  %>% filter(views > 0)
+#write_csv(x = page_views, path = "datos/influenza.csv")
+
+page_views <- read_csv(file = "datos/influenza.csv")
+
+ggplot(page_views, aes(x=date, y=log(views))) + 
+  geom_point(size=0.8, alpha=0.5, colour="#2dcccd") + 
+  geom_smooth(method="loess", colour="#00000000", fill="steelblue", alpha=1, span = 0.1) +
+  scale_y_continuous( breaks=seq(5e6, 50e6, 5e6) , 
+  label= paste(seq(5,50,5),"M") ) + xlab("Fecha") + ylab("Número de visitas (log)") +
+  theme_bw()
 ```
 
-El siguiente código R se utilizó para seleccionar un modelo automáticamente.
+```{r}
+library(AnomalyDetection)
+
+page_views_br <- page_views %>% 
+  select(date, views) %>% 
+  mutate(views = log(views)) %>%
+  rename(timestamp = date) %>% 
+  mutate(timestamp = as.POSIXct(timestamp))
+
+res <- 
+AnomalyDetectionTs(
+  x         = page_views_br, 
+  alpha     = 0.05, 
+  max_anoms = 0.40,
+  direction = "both"
+)$anoms
+
+res$timestamp <- as.Date(res$timestamp)
+
+head(res)
+```
 
 ```{r}
-fit <- auto.arima(uschange[,"Consumption"], seasonal=FALSE)
+page_views <- 
+  page_views %>% 
+  mutate(normal = !(page_views$date %in% res$timestamp))  %>% 
+  mutate(anom   =   page_views$date %in% res$timestamp )
+
+class(page_views) <- c("wp_df", "data.frame")
+```
+
+```{r}
+ggplot(data = page_views, aes(x=date, y=views)) + 
+      geom_line(color="steelblue") +
+      geom_point(data=filter(page_views, anom==T), color="red2", size=2) +
+      theme_bw() + xlab("Fecha") + ylab("Número de visitas") + ggtitle("Observaciones anómalas")
+```
+
+```{r message=FALSE, warning=FALSE, results='hide'}
+library(prophet)
+page_views_p <- dplyr::rename(page_views, ds = date, y = views)
+m <- prophet(page_views_p)
+future <- make_future_dataframe(m, periods = 1095)
+forecast <- predict(m, future)
+```
+
+```{r}
+plot(m, forecast)
+```
+
+Podemos graficar los componentes del modelo:
+
+```{r}
+prophet_plot_components(m, forecast)
 ```
 
 
-Esto es un modelo $ARIMA(1,0,3)$ :
-$$
-y_t = c + 0.589 y_{t-1} -0.353\varepsilon_{t-1} + 0.0846\varepsilon_{t-2}+0.174\varepsilon_{t-3} + \varepsilon_{t-3}
-$$
 
 
-```{r}
-fit %>% forecast(h=10) %>% autoplot(include=80)
-```
 
 # Referencias 
 
